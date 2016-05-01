@@ -64,13 +64,20 @@ exports.fetchAllGroups = function (sender) {
 		});
 }
 
+exports.fetchGroup = function (sender){
+	return groupModel.findById(sender)
+		.then(function (aG){
+			return aG;
+		});
+}
+
 exports.updateGroup = function (id, user){
 	groupModel.findById(id)
 		.then(function (g){
 			g.population++;
 			var newObj = {
 				senderID: user._id,
-				nickName: user.firstName,
+				nickName: '^' + user.firstName.substring(0,1) + user.lastName.substring(0,1),
 				profilePicture: 'string',
 				firstName: user.firstName,
 				lastName: user.lastName,
@@ -93,7 +100,7 @@ exports.createGroup = function (sender, text, user){
 	})
 	var newObj = {
 		senderID: user._id,
-		nickName: user.firstName,
+		nickName: '^' + user.firstName.substring(0,1) + user.lastName.substring(0,1),
 		profilePicture: 'String',
 		firstName: user.firstName,
 		lastName: user.lastName,

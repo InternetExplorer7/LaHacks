@@ -24,9 +24,27 @@ exports.start = function (sender, text){
 				// 2) Fetch users' groupID to find group document.
 				// 3) Using group document, loop through each...
 				// 4) ..
-			console.log(user.groupIDs.length);
+			process_chat(sender, text, user);
 		}
 	});
+}
+
+function process_chat(sender, text, user){
+	var elem;
+	Promise.try(function (){
+		return db.fetchGroup(user.groupIDs[0]); // Gets group
+	}).then(function (group){
+		return group.users;
+	}).each(function (user){ // Find user in group array and remove. make sure to save.
+		if(sender === parseInt(user.senderID)){
+			elem = user.nickName;
+			return user;
+		}
+	}).each(function (user){
+		if(sender !== parseInt(user.senderID)){
+			FB.sendTextMessage(user.senderID, elem + ' ' + text);
+		}
+	})
 }
 
 function search(sender, text, user){
