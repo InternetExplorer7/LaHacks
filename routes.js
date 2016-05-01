@@ -29,7 +29,9 @@ exports.start = function (sender, text){
 	});
 }
 
-function process_chat(sender, text, user){
+
+
+function process_chat(sender, userInput, user){
 	var elem;
 	Promise.try(function (){
 		return db.fetchGroup(user.groupIDs[0]); // Gets group
@@ -42,7 +44,14 @@ function process_chat(sender, text, user){
 		}
 	}).each(function (user){
 		if(sender !== parseInt(user.senderID)){
-			FB.sendTextMessage(user.senderID, elem + ' ' + text);
+            if (userInput.message.attachment===null &&  
+                userInput.message.payload===null){
+                FB.sendTextMessage(user.senderID, elem + ' ' + text);
+            }
+            else {
+                FB.sen
+            }
+			
 		}
 	})
 }
@@ -79,4 +88,14 @@ function expandedSearch(sender, text, user, aG){ // senderID, text, user, allGro
 			FB.sendButtonTemplate(sender, cArray); // Send found groups. :-)
 		}
 	});
+}
+
+//check content type
+function isText(userInput){
+    if (userInput.message.attachment===null && userInput.message.payload===null)
+        return true;
+    }
+}
+function isImage(userInput){
+    return userInput typeof === 'URL';
 }
