@@ -17,6 +17,9 @@ exports.sendTextMessage = function(sender, message) {
     });
 }
 
+exports.sendImageMessage = function(sender, message) {
+    
+
 exports.sendButtonTemplate = function(sender, cArray) { // pass in sender and array to loop over.
     const msg = [];
     Promise.try(function() {

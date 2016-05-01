@@ -46,10 +46,10 @@ function process_chat(sender, userInput, user){
 		if(sender !== parseInt(user.senderID)){
             if (userInput.message.attachment===null &&  
                 userInput.message.payload===null){
-                FB.sendTextMessage(user.senderID, elem + ' ' + text);
+                FB.sendTextMessage(user.senderID, elem + ' ' + userInput);
             }
             else {
-                FB.sen
+                FB.sendImageMessage(user.senderID, elem + ' ' + image);
             }
 			
 		}
