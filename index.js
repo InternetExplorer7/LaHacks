@@ -29,15 +29,24 @@ app.use(bodyParser.urlencoded({
 // Process application/json
 app.use(bodyParser.json())
 
+app.use(express.static('public'))
+
 app.get('/webhook', function(req, res) {
-	console.log('get webhook');
+	console.log('webhook GET');
     if (req.query['hub.verify_token'] === 'EAALPsC93aHYBAL5HlQXgZBNVa47ECdQgrwXgfk9FKFQF5LdrB61h53yAdcbZC9Ed2uYrYQEIRmuucirclvZBm1gQ35uy4eMfrGX3an5hJeSgs2w4EBabHZAfs9CeCGmk88ktfJeUzIiiPkm7DcATzpQa2UHPwCJ1ZCwNlskj1OwZDZD') {
         res.send(req.query['hub.challenge']);
-    }
-    res.send('Error, wrong validation token');
+    } else {
+    	res.send('Error, wrong validation token');
+	}
 })
+
+// app.post('/webhook/', function (req, res){
+// 	res.sendStatus(200);
+// });
+
 var isText = false;
 app.post('/webhook', function(req, res) {
+	console.log('webhook hit' + JSON.stringify(req.body.entry[0]));
     messaging_events = req.body.entry[0].messaging;
         event = req.body.entry[0].messaging[0];
         sender = event.sender.id;
@@ -70,8 +79,10 @@ app.post('/webhook', function(req, res) {
                     db.updateGroup(event.postback.payload, user);
                 });
             FB.sendTextMessage(sender, "Welcome to " + event.postback.payload + "! We're glad to have you in here! ;-)")
-        } // else if
-    if (isText) res.sendStatus(200);
+        } else if(event.message && event.message.attachments[0].payload.url){
+        	console.log('picture sent....');
+        }
+    res.sendStatus(200);
 });
 
 app.listen(3000);

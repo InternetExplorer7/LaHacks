@@ -6,6 +6,7 @@ const contactSchema = new mongoose.Schema({
 	firstName: String,
 	lastName: String,
 	profilePicture: String,
+	nickName: String,
 	groupIDs: [String]
 });
 

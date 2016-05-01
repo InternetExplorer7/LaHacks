@@ -2,6 +2,8 @@ const db = require('./db');
 
 const FB = require('./FB');
 
+const userModel = require('./models/users');
+
 const Promise = require('bluebird');
 
 const natural = require('natural');
@@ -13,20 +15,36 @@ exports.start = function (sender, text){
 		return db.fetchUser(sender) // Gets user document
 	}).then(function (user){
 		if(user.groupIDs.length < 1){
-			// If not in any groups, they are most likely:
-			// 1) Searching for group by name.
-				// 2) If not found, create group.
-			// TODO: Implement search algo here.
 			search(sender, text, user);
 		} else {
-			// Already in group.
-			// 1) Check for commands.
-				// 2) Fetch users' groupID to find group document.
-				// 3) Using group document, loop through each...
-				// 4) ..
-			process_chat(sender, text, user);
+			const command = text.substring(1).toLowerCase();
+			if(text.includes('/') && text.length === 3){
+				actions.requestUser(user, command);
+			} else if (text.includes('/')){
+				switch (command){
+				case "help":
+					actions.help(sender);
+					break;
+			}
+		} else {
+				 process_chat(sender, text, user); // For sending message to all users
+			}
 		}
 	});
+}
+
+const actions = {
+	help: (sender) => {
+		FB.sendTextMessage(sender, "Hi\n\nIt is pretty simple to get started wth infinite.\n\n1) Tell me where you are, and I will automatically connect you.\n\n2) If you want to leave a group, simply use `/leave`\n\n")
+	},
+	requestUser: (user, command)  => {
+		Promise.try(function (){
+			return userModel.find({nickName: command.toUpperCase()}) // Returns users document.
+		}).then(function (m){
+			console.log('f: ' + m[0]._id + '. user: ' + user);
+			FB.sendButtonARTemplate(m[0]._id, user) // sendButtonARTemplate
+		});
+	}
 }
 
 function process_chat(sender, text, user){
@@ -37,12 +55,12 @@ function process_chat(sender, text, user){
 		return group.users;
 	}).each(function (user){ // Find user in group array and remove. make sure to save.
 		if(sender === parseInt(user.senderID)){
-			elem = user.nickName;
+			elem = user; // .nickName
 			return user;
 		}
 	}).each(function (user){
 		if(sender !== parseInt(user.senderID)){
-			FB.sendTextMessage(user.senderID, elem + ' ' + text);
+			FB.sendChatTextMessage(user.senderID, elem.nickName, text, user.rProfilePicture); // senderid, title, subtitle, image
 		}
 	})
 }
@@ -65,7 +83,7 @@ function expandedSearch(sender, text, user, aG){ // senderID, text, user, allGro
 	Promise.try(function (){
 		return aG;
 	}).filter(function (group){
-		if(natural.JaroWinklerDistance(text, group._id) > 0.70){
+		if(natural.JaroWinklerDistance(text, group._id) > 0.40){
 			return true;
 		} else {
 			return false;

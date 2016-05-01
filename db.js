@@ -32,7 +32,8 @@ exports.fetchFBDataAndSaveToUser = function (sender){
 			_id: sender,
 			firstName: uD.first_name,
 			lastName: uD.last_name,
-			profilePicture: uD.profile_pic
+			profilePicture: uD.profile_pic,
+			nickName: uD.first_name.substring(0,1) + uD.last_name.substring(0,1)
 		})
 		newRegister.save();
 	})
@@ -71,6 +72,7 @@ exports.fetchGroup = function (sender){
 		});
 }
 
+const arrOfR = ['animalsicons-01.png', 'animalsicons-02.png', 'animalsicons-03.png'];
 exports.updateGroup = function (id, user){
 	groupModel.findById(id)
 		.then(function (g){
@@ -78,10 +80,10 @@ exports.updateGroup = function (id, user){
 			var newObj = {
 				senderID: user._id,
 				nickName: '^' + user.firstName.substring(0,1) + user.lastName.substring(0,1),
-				profilePicture: 'string',
+				profilePicture: user.profilePicture,
 				firstName: user.firstName,
 				lastName: user.lastName,
-				rProfilePicture: 'string'
+				rProfilePicture: arrOfR[0]
 			}
 			g.users.push(newObj);
 			g.save().then(function (nG){
@@ -98,14 +100,14 @@ exports.createGroup = function (sender, text, user){
 		users: [],
 		conversation: ''
 	})
-	var newObj = {
-		senderID: user._id,
-		nickName: '^' + user.firstName.substring(0,1) + user.lastName.substring(0,1),
-		profilePicture: 'String',
-		firstName: user.firstName,
-		lastName: user.lastName,
-		rProfilePicture: 'String'
-	}
+		var newObj = {
+			senderID: user._id,
+			nickName: '^' + user.firstName.substring(0,1) + user.lastName.substring(0,1),
+			profilePicture: user.profilePicture,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			rProfilePicture: arrOfR[1]
+		}
 	newGroup.users.push(newObj);
 	newGroup.save().then(function (nG){
 		console.log(nG);

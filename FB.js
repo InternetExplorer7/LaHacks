@@ -17,6 +17,33 @@ exports.sendTextMessage = function(sender, message) {
     });
 }
 
+exports.sendChatTextMessage = function (sender, title, subtitle, image_url){
+    console.log('https://3677da71.ngrok.io/' + image_url);
+    const msg = [{
+           title: title,
+           image_url: 'https://3677da71.ngrok.io/' + image_url,
+           subtitle: subtitle,
+       }];
+     const options = {
+        url: "https://graph.facebook.com/v2.6/me/messages",
+        qs: {access_token: token},
+        method: "POST",
+        json: true,
+        body: {
+            recipient: {id: sender},
+                "message": {
+                    "attachment": {
+                        "type": "template",
+                        "payload": {
+                            "template_type": "generic",
+                            "elements": msg
+                        }
+                    }
+                }
+        }
+     }
+     rp(options);
+}
 exports.sendButtonTemplate = function(sender, cArray) { // pass in sender and array to loop over.
     const msg = [];
     Promise.try(function() {
@@ -45,13 +72,52 @@ exports.sendButtonTemplate = function(sender, cArray) { // pass in sender and ar
                         "payload": {
                             "template_type": "generic",
                             "elements": msg
+                    }
+                }
+            }
+        }
+     }
+     rp(options);
+   });
+}
+// http://www.spacex.com/sites/spacex/files/4_super_close_up.jpg
+exports.sendButtonARTemplate = function(senderID, user) { // pass in sender and array to loop over.
+    console.log('user: ' + user);
+    var title = (user.firstName + ' ' + user.lastName);
+    const msg = [{
+           title: title,
+           image_url: user.profilePicture,
+           subtitle: "Accept to chat with the user, or reject to ignore.",
+           buttons: [{
+               type: "postback",
+               title: "Accept",
+               payload: ('accept|' + user._id)
+            },
+            {
+               type: "postback",
+               title: "Reject",
+               payload: ('reject|' + user._id)
+           }]
+       }];
+     const options = {
+        url: "https://graph.facebook.com/v2.6/me/messages",
+        qs: {access_token: token},
+        method: "POST",
+        json: true,
+        body: {
+            recipient: {id: senderID},
+                "message": {
+                    "attachment": {
+                        "type": "template",
+                        "payload": {
+                            "template_type": "generic",
+                            "elements": msg
                         }
                     }
                 }
         }
      }
      rp(options);
-   });
 }
 
 exports.getUserInformation = function (senderID){ // We need to send back a Promise.
